@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="ac52c020-65e0-4d6d-a212-f0a931a7383f" name="baiduvps" url="http://182.61.39.96">
+        <fileTransfer host="182.61.39.96" port="22" rootFolder="/www/wwwroot" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
