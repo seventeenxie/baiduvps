@@ -1,0 +1,196 @@
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>精东机械有限公司</title>
+    <link rel="stylesheet" type="text/css" href="mode/bootstrap3.3/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="web/res/fontawesome/css/font-awesome.min.css">
+    <!--[if IE 7 ]><link rel="stylesheet" type="text/css" href="web/res/fontawesome/css/font-awesome-ie7.min.css"><![endif]-->
+    <link rel="stylesheet" type="text/css" href="webmain/css/webmain.css"/>
+    <link rel="stylesheet" type="text/css" href="webmain/css/style1.css" id="mainstylecss"/>
+    <link rel="stylesheet" type="text/css" href="web/res/mode/menu/jquery-rockmenu.css"/>
+    <link rel="stylesheet" type="text/css" href="mode/plugin/css/jquery-rockdatepicker.css"/>
+    <link rel="shortcut icon" href="favicon.ico" />
+    <script type="text/javascript" src="js/jquery1.91.js"></script>
+    <script type="text/javascript" src="js/js.js"></script>
+    <script type="text/javascript" src="js/base64-min.js"></script>
+    <script type="text/javascript" src="webmain/index/indexpublic.js"></script>
+    <script type="text/javascript" src="web/res/mode/menu/jquery-rockmenu.js"></script>
+    <script src="js/echarts.common.min.js"></script>
+
+
+<body style="padding:0px;margin:0px; overflow:hidden;" scroll="no">
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <form role="form">
+                <div class="form-group">
+                    <select class="form-control" id="select">
+                        <option value="bossknow">老板表</option>
+                        <option value="financedetail">供应商欠款</option>
+                        <option value="supplierrecent">购买查询(日期)</option>
+                        <option value="contract">合同(日期)</option>
+                        <option value="duein">待收金额</option>
+                        <option value="allds">所有待收明细</option>
+                        <option value="pastduein">过期待收</option>
+                        <option value="allpastds">过期待收明细</option>
+                        <option value="pastdueinnotfinish">过期待收未完成</option>
+                        <option value="allpastdsnotfinish">过期待收未完成明细</option>
+                        <option value="pastfinish">完成未收</option>
+                        <option value="pastfinishdetail">完成未收明细</option>
+                        <option value="finceout">所有支出(日期)</option>
+                        <option value="finceoutdetail">支出明细(日期)</option>
+                        <option value="financein">所有收入(日期)</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <button onclick="search()"> 查询</button>
+        </div>
+        <div class="col-md-12">
+            <table width="30%" style="margin-top:5px">
+                <tr>
+                    <td nowrap>日期</td>
+                    <td>
+                        <input onclick="js.datechange(this,'date')" style="width:110px" readonly class="form-control datesss" id="dt1">
+                    </td>
+                    <td>至</td>
+                    <td>
+                        <input onclick="js.datechange(this,'date')" style="width:110px" readonly class="form-control datesss" id="dt2">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-8">
+            <div id="main" style="width:400px;height:400px;"></div>
+        </div>
+        <div id="data">
+            <table class="table table-hover">
+                <tbody id="tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        if (month < 10) month = "0" + String(month);
+        var day = date.getDate();
+        if (day < 10) day = "0" + String(day);
+
+        get('dt1').value = String(year) + "-" + String(month) + "-" + "01"
+        get('dt2').value = String(year) + "-" + String(month) + "-" + day
+
+        search();
+        $("#select").change(function () {
+            getdata($('#select').val());
+        })
+
+
+    })
+
+
+    function search() {
+        getdata($('#select').val());
+    }
+
+    function getdata(type) {
+
+        var stardate = get('dt1').value
+        var enddate = get('dt2').value
+        $.ajax({
+            type: "GET",
+            url: "index.php?a=bossDetail&d=my&m=boss&type=" + type + "&startdate=" + stardate + "&enddate=" + enddate,
+            dataType: "json",
+            success: function (data) {
+                $('#tablehead').html("");
+                $('#tbody').html("");
+                var table = "";
+                if (data.total > 0) {
+                    table = table + "<tr><td colspan='2' align='right'>" + '总金额:' + "</td><td colspan='2'>" + data.total + "</td></tr>"
+                    optionText=data.text+'总金额: '+data.total
+                }
+                else {
+                    optionText=data.text
+                }
+                $.each(data.datatable, function (index, content) {
+                    if (index % 2 == 0) {
+                        if (index == 0) {
+                            table = table + "<tr>";
+                        }
+                        else {
+                            table = table + "</tr><tr>";
+                        }
+
+                    }
+                    table = table + "<td>" + content.name + "</td><td>" + content.value + "</td>"
+                });
+                $('#tbody').append(table);
+                // 基于准备好的dom，初始化echarts实例
+                var myChart = echarts.init(document.getElementById('main'));
+
+
+                option = {
+                    title: {
+                        text: optionText,
+                        subtext: data.subtext,
+                        x: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b} : {c} ({d}%)"
+                    },
+                    series: [
+                        {
+                            name: data.text,
+                            type: 'pie',
+                            radius: '55%',
+                            center: ['50%', '60%'],
+                            data: data.data,
+                            itemStyle: {
+                                emphasis: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                },
+                                normal:{
+                                    label:{
+                                        show: true,
+                                        formatter: '{b} : {c} ({d}%)'
+                                    },
+                                    labelLine :{show:true}
+                                }
+                            }
+                        }
+                    ]
+                };
+
+                myChart.setOption(option);
+            }
+        });
+
+    }
+
+
+</script>
+
+<link rel="stylesheet" type="text/css" href="webmain/css/animate.css"/><!--动画CSS-->
+<script type="text/javascript" src="mode/bootstrapplugin/jquery-bootstable.js"></script><!--表格插件-->
+<script type="text/javascript" src="mode/bootstrapplugin/jquery-bootsform.js"></script><!--表单插件-->
+<script type="text/javascript" src="mode/bootstrapplugin/jquery-bootstree.js"></script><!--表格树形插件-->
+<script type="text/javascript" src="mode/plugin/jquery-rockdatepicker.js"></script><!--日期选择插件-->
+<script type="text/javascript" src="web/res/js/jquery-imgview.js"></script><!--图片预览-->
+<script type="text/javascript" src="web/res/perfectscrollbar/jquery.mousewheel.js"></script><!--鼠标-->
+<script type="text/javascript" src="web/res/js/jquery-rockupload.js"></script><!--上传插件-->
+<script type="text/javascript" src="web/res/js/jquery-changeuser.js"></script><!--人员选择-->
+<script type="text/javascript" src="web/res/mode/calendar/jquery-rockcalendar.js"></script><!--日期插件-->
+<script type="text/javascript" src="web/res/mode/calendar/jquery-rocklunar.js"></script><!--农历-->
+<script type="text/javascript" src="js/option.js"></script><!--数据选项-->
+<script type="text/javascript" src="web/res/js/notify.js"></script><!--通知提醒插件-->
+</body>
+</html>

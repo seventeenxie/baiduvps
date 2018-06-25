@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>精东机械有限公司</title>
+    <link rel="stylesheet" type="text/css" href="mode/bootstrap3.3/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="web/res/fontawesome/css/font-awesome.min.css">
+    <!--[if IE 7 ]><link rel="stylesheet" type="text/css" href="web/res/fontawesome/css/font-awesome-ie7.min.css"><![endif]-->
+    <link rel="stylesheet" type="text/css" href="webmain/css/webmain.css"/>
+    <link rel="stylesheet" type="text/css" href="webmain/css/style1.css" id="mainstylecss"/>
+    <link rel="stylesheet" type="text/css" href="web/res/mode/menu/jquery-rockmenu.css"/>
+    <link rel="stylesheet" type="text/css" href="mode/plugin/css/jquery-rockdatepicker.css"/>
+    <link rel="shortcut icon" href="favicon.ico" />
+    <script type="text/javascript" src="web/res/js/jquery.1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/js.js"></script>
+    <link rel="stylesheet" type="text/css" href="webmain/my/js/datepicker.css"/>
+    <script type="text/javascript" src="webmain/my/js/bootstrap-datepicker.js"></script>
+</head>
+
+<body>
+<div>
+
+    <div class="row" style="margin:30px 15px 15px 15px;">
+        <div class="col-xs-12 col-sm-12" style="box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
+            <table width="100%" style="margin-top:5px">
+                <tr>
+                    <td colspan=5 style="font-size: 20px;text-align: center">现金剩余:<spand id="totalmoney">  </spand></td>
+                </tr>
+                <tr>
+                    <td nowrap>日期&nbsp;</td>
+                    <td><input id="selectdate" class="datepicker" readonly data-date-format="yyyy-mm-dd"></td>
+
+                    <td style="padding-left:10px">
+                        <button class="btn btn-default" onclick="getfinceTotal()" type="button">统计</button>
+                    </td>
+
+                </tr>
+            </table>
+            <div id="finance" style="width:100%;height:600px;padding-top: 5px"></div>
+        </div>
+    </div>
+
+    <div class="clearfix visible-xs" style="margin-bottom: 40px"></div>
+</div>
+
+<script src="js/echarts.common.min.js"></script>
+<script src="webmain/my/js/finance.js"></script>
+<script>
+    //日期
+    $(function () {
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+        });
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        if (month < 10) month = "0" + String(month);
+        var day = date.getDate();
+        if (day < 10) day = "0" + String(day);
+        get('selectdate').value = String(year) + "-" + String(month) + "-" + day;
+        getfinceTotal();
+
+    })
+    function getfinceTotal()
+    {
+        $.ajax({
+            type: "GET",
+            url: "index.php?a=getfinance&d=my&m=finance",
+            dataType: "json",
+            data:{searchdate:get('selectdate').value},
+            success: function (data) {
+                getcashtotal(data);
+            }
+        });
+    }
+
+</script>
+
+
+
+</body>
+</html>

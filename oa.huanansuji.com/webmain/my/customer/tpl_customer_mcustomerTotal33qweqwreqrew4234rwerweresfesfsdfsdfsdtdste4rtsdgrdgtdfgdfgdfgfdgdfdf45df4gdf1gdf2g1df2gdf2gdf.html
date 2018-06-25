@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>精东机械有限公司</title>
+    <link rel="stylesheet" type="text/css" href="mode/bootstrap3.3/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="web/res/fontawesome/css/font-awesome.min.css">
+    <!--[if IE 7 ]><link rel="stylesheet" type="text/css" href="web/res/fontawesome/css/font-awesome-ie7.min.css"><![endif]-->
+    <link rel="stylesheet" type="text/css" href="webmain/css/webmain.css"/>
+    <link rel="stylesheet" type="text/css" href="webmain/css/style1.css" id="mainstylecss"/>
+    <link rel="stylesheet" type="text/css" href="web/res/mode/menu/jquery-rockmenu.css"/>
+    <link rel="stylesheet" type="text/css" href="mode/plugin/css/jquery-rockdatepicker.css"/>
+    <link rel="shortcut icon" href="favicon.ico" />
+    <script type="text/javascript" src="web/res/js/jquery.1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/js.js"></script>
+
+
+</head>
+
+<body>
+<div>
+    <div class="row" style="padding-bottom: 30px">
+        <div class="col-xs-12 col-sm-12" style="box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
+            <table width="100%" style="margin-top:5px">
+                <tr>
+                    <td colspan=5 style="font-size: 20px;text-align: center">询盘统计</td>
+                </tr>
+                <tr>
+                    <td nowrap>日期&nbsp;</td>
+                    <td>
+                        <input onclick="js.datechange(this,'date')" style="width:110px" readonly
+                               class="form-control datesss" id="dt1_{rand}">
+                    </td>
+                    <td>&nbsp;至&nbsp;</td>
+                    <td align="left">
+                        <input onclick="js.datechange(this,'date')" style="width:110px" readonly
+                               class="form-control datesss" id="dt2_{rand}">
+                    </td>
+                    <td style="padding-left:10px">
+                        <select id="type">
+                            <option value="type">类型</option>
+                            <option value="laiyuan">来源</option>
+                            <option value="country">地区</option>
+                        </select>
+                    </td>
+                    <td style="padding-left:10px">
+                        <button class="btn btn-default" onclick="countTotal()" type="button">统计</button>
+                    </td>
+
+                </tr>
+            </table>
+            <div id="total" style="width:100%;height:600px;padding-top: 5px"></div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12" style="box-shadow: inset 1px -1px 1px #444, inset -1px 1px 1px #444;">
+            <table width="100%" style="margin-top:5px">
+                <tr>
+                    <td colspan=5 style="font-size: 20px;text-align: center">销售统计</td>
+                </tr>
+                <tr>
+                    <td nowrap>日期&nbsp;</td>
+                    <td>
+                        <input onclick="js.datechange(this,'date')" style="width:110px" readonly
+                               class="form-control datesss" id="dt3_{rand}">
+                    </td>
+                    <td>&nbsp;至&nbsp;</td>
+                    <td align="left">
+                        <input onclick="js.datechange(this,'date')" style="width:110px" readonly
+                               class="form-control datesss" id="dt4_{rand}">
+                    </td>
+
+                    <td style="padding-left:10px">
+                        <button class="btn btn-default" onclick="customersaleTotal()" type="button">统计</button>
+                    </td>
+
+                </tr>
+            </table>
+            <div id="customersaletotal" style="width:100%;height:600px;padding-top: 5px"></div>
+        </div>
+    </div>
+
+    <div class="clearfix visible-xs" style="margin-bottom: 40px"></div>
+</div>
+
+<script src="js/echarts.common.min.js"></script>
+<script src="webmain/my/js/customer.js"></script>
+<script>
+    //日期
+    $(function () {
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        if (month < 10) month = "0" + String(month);
+        var day = date.getDate();
+        if (day < 10) day = "0" + String(day);
+        get('dt1_{rand}').value = String(year) + "-" + String(month) + "-" + "01"
+        get('dt2_{rand}').value = String(year) + "-" + String(month) + "-" + day
+        get('dt3_{rand}').value = String(year) + "-" + String(month) + "-" + "01"
+        get('dt4_{rand}').value = String(year) + "-" + String(month) + "-" + day
+        countTotal()
+        customersaleTotal()
+    })
+    function countTotal()
+    {
+        $.ajax({
+            type: "GET",
+            url: "index.php?a=gettotal&d=my&m=customer",
+            data: {startdate: get('dt1_{rand}').value, enddate: get('dt2_{rand}').value, type: $("#type").val()},
+            dataType: "json",
+            success: function (data) {
+                getCustomerTotal(data);
+            }
+        });
+    }
+    function customersaleTotal()
+    {
+        $.ajax({
+            type: "GET",
+            url: "index.php?a=customersaleTotal&d=my&m=customer",
+            data: {startdate: get('dt3_{rand}').value, enddate: get('dt4_{rand}').value},
+            dataType: "json",
+            success: function (data) {
+                getcustomersaleTotal(data);
+            }
+        });
+    }
+
+</script>
+
+
+
+</body>
+</html>
